@@ -1,5 +1,7 @@
+#include <random>
 #include <iostream>
-#include <cstring>
+#include <regex>
+#include <unistd.h>
 #include "TicTacToe.h"
 
 using namespace std;
@@ -9,29 +11,36 @@ void TicTacToe::gameLoop() {
     while (!isGameOver) {
         showGrid();
         string input;
-        cout << R"(First enter the row where you would like to place your "X". (1 - 3))" << endl;
+        cout << R"(First enter the column where you would like to place your "X". (1 - 3))" << endl;
         cin >> input;
-        while (input != "1" || input != "2" || input != "3") {
-            cout << "Invalid number, please re-enter the row number. (1 - 3)" << endl;
-            cin >> input;
-        }
-        string row = input;
-        cout << R"(Now please enter the column where you would like to place your "X". (1 - 3))" << endl;
-        cin >> input;
-        while (input != "1" || input != "2" || input != "3") {
+        if (input == "!exit") { break; }
+        regex validInput("[1-3]");
+        while (!regex_match(input, validInput)) {
             cout << "Invalid number, please re-enter the column number. (1 - 3)" << endl;
             cin >> input;
+            if (input == "!exit") { break; }
         }
         string column = input;
+        cout << R"(Now please enter the row where you would like to place your "X". (1 - 3))" << endl;
+        cin >> input;
+        if (input == "!exit") { break; }
+        while (!regex_match(input, validInput)) {
+            cout << "Invalid number, please re-enter the row number. (1 - 3)" << endl;
+            cin >> input;
+            if (input == "!exit") { break; }
+        }
+        string row = input;
         if (!setGrid(stoi(row) - 1, stoi(column) - 1)) {
             cout << "This spot is already played, let's try again" << endl << endl;
             continue;
         } else {
             showGrid();
             cout << "Now it's the computer's turn...." << endl << endl;
+            sleep(3);
             randomComputerMove();
         }
     }
+    cout << "Bye!" << endl;
 }
 
 bool TicTacToe::setGrid(int row, int column) {
@@ -44,7 +53,16 @@ bool TicTacToe::setGrid(int row, int column) {
 }
 
 bool TicTacToe::randomComputerMove() {
-//    TODO
+    srand(time(0));
+    while (true) {
+        int randomColumn = rand() % 3;
+        int randomRow = rand() % 3;
+        if (grid[randomColumn][randomRow] == 0) {
+            grid[randomColumn][randomRow] = -1;
+            break;
+        }
+    }
+
 }
 
 void showMenu() {
