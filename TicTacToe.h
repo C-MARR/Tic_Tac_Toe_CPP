@@ -3,13 +3,18 @@
 
 class TicTacToe {
 private:
-    bool isGameOver = false;
     int grid[3][3] = {};
     bool setGrid(int row, int column);
     bool randomComputerMove();
+    int checkRowForWin();
+    int checkColumnForWin();
+    int checkDiagonalForWin();
+    int checkForWin();
+    static void gameOver(int winner);
 public:
     TicTacToe() { }
     void gameLoop();
+
     void showGrid();
 };
 

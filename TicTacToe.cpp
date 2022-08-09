@@ -7,37 +7,39 @@
 using namespace std;
 
 void TicTacToe::gameLoop() {
+    int winner = 0;
     cout << "Welcome to C++ Tic-Tac-Toe!" << endl << endl;
-    while (!isGameOver) {
-        showGrid();
+    showGrid();
+    while (true) {
         string input;
-        cout << R"(First enter the column where you would like to place your "X". (1 - 3))" << endl;
-        cin >> input;
+        cout << R"(First enter the coordinates where place your "X". Column, then Row --example "1 3")" << endl;
+        getline(cin, input);
         if (input == "!exit") { break; }
-        regex validInput("[1-3]");
+        regex validInput("[1-3] [1-3]");
         while (!regex_match(input, validInput)) {
-            cout << "Invalid number, please re-enter the column number. (1 - 3)" << endl;
+            cout << R"(Invalid entry, please re-enter the coordinates. --example "2 2")" << endl;
             cin >> input;
             if (input == "!exit") { break; }
         }
-        string column = input;
-        cout << R"(Now please enter the row where you would like to place your "X". (1 - 3))" << endl;
-        cin >> input;
-        if (input == "!exit") { break; }
-        while (!regex_match(input, validInput)) {
-            cout << "Invalid number, please re-enter the row number. (1 - 3)" << endl;
-            cin >> input;
-            if (input == "!exit") { break; }
-        }
-        string row = input;
-        if (!setGrid(stoi(row) - 1, stoi(column) - 1)) {
+        if (!setGrid(input[0] - 49, input[2] - 49)) {
             cout << "This spot is already played, let's try again" << endl << endl;
             continue;
         } else {
             showGrid();
+            winner = checkForWin();
+            if (winner != 0) {
+                gameOver(winner);
+                break;
+            }
             cout << "Now it's the computer's turn...." << endl << endl;
             sleep(3);
             randomComputerMove();
+            showGrid();
+            winner = checkForWin();
+            if (winner != 0) {
+                gameOver(winner);
+                break;
+            }
         }
     }
     cout << "Bye!" << endl;
@@ -80,4 +82,57 @@ void TicTacToe::showGrid() {
         cout << "| " << i + 1 << endl;
     }
     cout << "---------" << endl << endl;
+}
+
+int TicTacToe::checkForWin() {
+    int columnWin = checkColumnForWin();
+    if (columnWin != 0) {
+        return columnWin;
+    }
+    int rowWin = checkRowForWin();
+    if (rowWin != 0) {
+        return rowWin;
+    }
+    int diagonalWin = checkDiagonalForWin();
+    if (checkDiagonalForWin() != 0) {
+        return diagonalWin;
+    }
+    return 0;
+}
+
+int TicTacToe::checkColumnForWin() {
+    for (auto & i : grid) {
+        if (i[0] != 0 && i[0] == i[1] && i[0] == i[2]) {
+            return i[0];
+        }
+    }
+    return 0;
+}
+
+int TicTacToe::checkRowForWin() {
+    for (int i = 0; i < 3; i++) {
+        if (grid[0][i] != 0 && grid[0][i] == grid[1][i] && grid[0][i] == grid[2][i]) {
+            return grid[0][i];
+        }
+    }
+    return 0;
+}
+
+int TicTacToe::checkDiagonalForWin() {
+    if ((grid[0][2] == grid[1][1] && grid[1][1] == grid[2][0]) ||
+        (grid[0][0] == grid[1][1] && grid[1][1] == grid[2][2]) && grid[1][1] != 0) {
+        return grid[1][1];
+    } else {
+        return 0;
+    }
+}
+
+void TicTacToe::gameOver(int winner) {
+    if (winner == 1) {
+        cout << "Congratulations!  You Win!" << endl;
+    } else if (winner == -1) {
+        cout << "Sorry, the Computer has outplayed you." << endl;
+    } else {
+        cout << "It's a draw!" << endl;
+    }
 }
